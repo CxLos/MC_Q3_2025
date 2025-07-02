@@ -155,8 +155,8 @@ df.rename(
         "BMHC Activity:": "Purpose",
         # "Purpose of the activity (please only list one):": "Purpose",
         "Care Network Activity:": "Product Type",
-        "Activity Duration (Minutes)": "Activity duration",
-        "Total travel time (Minutes):": "Travel Time",
+        "Activity Duration (minutes):": "Activity duration",
+        "Total travel time (minutes):": "Travel Time",
     }, 
 inplace=True)
 
@@ -194,11 +194,13 @@ df['Activity duration'] = (
         '0 - hour': 0.5,
         '0 - 1 our': 0.5,
         '0 - 1 hours': 0.5,
-        '': None
+        '': 0,
+        'hour': 0,
+        'hours': 0,
     })
-    .replace(' hours', '', regex=True)
-    .replace(' hour', '', regex=True)
-    .astype(float)
+    # .replace(' hours', '', regex=True)
+    # .replace(' hour', '', regex=True)
+    # .astype(float)
 )
 
 df['Activity duration'] = df['Activity duration'].fillna(0)
