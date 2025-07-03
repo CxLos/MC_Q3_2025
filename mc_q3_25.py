@@ -10,6 +10,7 @@ from geopy.geocoders import Nominatim
 from folium.plugins import MousePosition
 import plotly.express as px
 from datetime import datetime
+import calendar
 import folium
 import os
 import sys
@@ -71,16 +72,8 @@ color_sequence = px.colors.qualitative.Plotly
 
 # Filtered df where 'Date of Activity:' is between 2025-01-01 and 2025-03-31
 df['Date of Activity'] = pd.to_datetime(df['Date of Activity'], errors='coerce')
-df = df[(df['Date of Activity'] >= '2025-1-01') & (df['Date of Activity'] <= '2025-3-31')]
+# df = df[(df['Date of Activity'].dt.month >= 4) & (df['Date of Activity'].dt.month <= 6)]
 df['Month'] = df['Date of Activity'].dt.month_name()
-
-df_1 = df[df['Month'] == 'January']
-df_2 = df[df['Month'] == 'February']
-df_3 = df[df['Month'] == 'March']
-
-# print(df_1.head())
-# print(df_2.head())
-# print(df_3.head())
 
 # Get the reporting quarter:
 def get_custom_quarter(date_obj):
@@ -95,10 +88,22 @@ def get_custom_quarter(date_obj):
         return "Q4"
 
 # Example usage:
-report_date = datetime(2025, 3, 1)
-report_year = datetime(2025, 3, 1).year
+report_date = datetime(2025, 6, 1)
+report_year = datetime(2025, 6, 1).year
+month = report_date.month
 current_quarter = get_custom_quarter(report_date)
 print(f"Reporting Quarter: {current_quarter}")
+
+# Get the first month of the quarter
+first_month = 3 * ((month - 1) // 3) + 1
+second_month = first_month + 1
+third_month = first_month + 2
+
+first_month_name = calendar.month_name[first_month]
+second_month_name = calendar.month_name[second_month]
+third_month_name = calendar.month_name[third_month]
+
+print(f"First Month: {first_month_name}, Second Month: {second_month_name}, Third Month: {third_month_name}")
 
 # print(df_m.head())
 # print('Total Marketing Events: ', len(df))
@@ -209,27 +214,27 @@ df['Activity duration'] = pd.to_numeric(df['Activity duration'], errors='coerce'
 # print("MC Hours Unique After: \n", df['Activity duration'].unique().tolist())
 
 marcom_hours = df.groupby('Activity duration').size().reset_index(name='Count')
-marcom_hours = df['Activity duration'].sum()
+marcom_hours = df['Activity duration'].sum()/60
 marcom_hours = round(marcom_hours)
-print('Q2 MarCom hours', marcom_hours, 'hours')
+print(f'{current_quarter} MarCom hours', marcom_hours)
 
 # Calculate total hours for each month
-hours_oct = df[df['Month'] == 'January']['Activity duration'].sum()
-hours_oct = round(hours_oct) 
-print('MarCom hours in January:', hours_oct, 'hours')
+hours_1 = df[df['Month'] == first_month_name]['Activity duration'].sum()
+hours_1 = round(hours_1) 
+print(f'MarCom hours in {first_month_name}:', hours_1)
 
-hours_nov = df[df['Month'] == 'February']['Activity duration'].sum()
-hours_nov = round(hours_nov)
-print('MarCom hours in February:', hours_nov, 'hours')  
+hours_2 = df[df['Month'] == second_month_name]['Activity duration'].sum()
+hours_2 = round(hours_2)
+print(f'MarCom hours in {second_month_name}:', hours_2)
 
-hours_dec = df[df['Month'] == 'March']['Activity duration'].sum()
-hours_dec = round(hours_dec)
-print('MarCom hours in March:', hours_dec, 'hours')
+hours_3 = df[df['Month'] == third_month_name]['Activity duration'].sum()
+hours_3 = round(hours_3)
+print(f'MarCom hours in {third_month_name}:', hours_3)
 
 # Create df for MarCom Hours
 df_hours = pd.DataFrame({
     'Month': ['January', 'February', 'March'],
-    'Hours': [hours_oct, hours_nov, hours_dec]
+    'Hours': [hours_1, hours_2, hours_3]
 })
 
 # Bar chart for MarCom Hours
@@ -312,8 +317,7 @@ hours_pie = px.pie(
 ).update_traces(
     rotation=180,  # Rotate pie chart 90 degrees counterclockwise
     textfont=dict(size=19),  # Increase text size in each bar
-    textinfo='value+percent',
-    # texttemplate='<br>%{percent:.0%}',  # Format percentage as whole numbers
+    texttemplate='%{value}<br>(%{percent:.1%})',
     hovertemplate='<b>%{label}</b>: %{value}<extra></extra>'
 )
 
@@ -339,6 +343,31 @@ travel_time = round(travel_time)
 # print('Total Travel Time:', travel_time, 'hours')
 
 # ------------------------------ MarCom Activity DF ------------------------------- #
+
+print("MarCom Activity Unique Before: \n", df['MarCom Activity'].unique().tolist())
+
+mc_unique =[
+    'Organizational Activity', 'General Health Awareness Activity', 'Care Network Related Activity', 'Board Support', 'BMHC Activity (Internal)', 'Community Education Activity (Digital Space Related)', 'Overcoming Mental Hellness logo', 'AmeriCorps Activity ', 'Community Outreach Activity (Physical Events)', 'AmeriCorps Duties', 'Care Network Activity (Services Related)', 'AmeriCorps Activity', 'Americorps Activity', 'AmeriCorps Avtivity'
+]
+
+df['MarCom Activity'] = (
+    df['MarCom Activity']
+        .astype(str)
+            .str.strip()
+            .replace({
+                "" : "N/A",
+                'AmeriCorps Activity ': 'AmeriCorps Activity',
+                'Americorps Activity': 'AmeriCorps Activity',
+                'AmeriCorps Avtivity': 'AmeriCorps Activity',
+                'Care Network Related Activity': 'Care Network Activity',
+                'Care Network Activity (Services Related)': 'Care Network Activity',
+                'Community Outreach Activity (Physical Events)': 'Community Outreach Activity',
+                'Community Education Activity (Digital Space Related)': 'Community Education Activity',
+                'Overcoming Mental Hellness logo': 'Overcoming Mental Hellness Logo',
+                'BMHC Activity (Internal)': 'BMHC Internal Activity',
+                # "" : "",
+            })
+)
 
 # Extracting "MarCom Activity" and "Date of activity:"
 df_activities = df[['MarCom Activity', 'Month']]
@@ -449,19 +478,19 @@ activity_pie = px.pie(
         b=0   # Bottom margin
     )  # Add margins around the chart
 ).update_traces(
-    rotation=0,  # Rotate pie chart 90 degrees counterclockwise
-    textfont=dict(size=19),  # Increase text size in each bar
-    textinfo='value+percent',
-    texttemplate='%{value}<br>%{percent:.0%}',  # Format percentage as whole numbers
+    rotation=90,  # Rotate pie chart 90 degrees counterclockwise
+    textfont=dict(size=15),  # Increase text size in each bar
+    texttemplate='%{value}<br>(%{percent:.1%})',
     insidetextorientation='horizontal',  # Horizontal text orientation
     hovertemplate='<b>%{label}</b>: %{value}<extra></extra>'
 )
 
 # ---------------------------- Product DF ------------------------ #
 
+print("Product Type Unique Before: \n", df['Product Type'].unique().tolist())
+
 data = [
-    '', 'Administrative Task', 'Announcement', 'Branding', 'Editing/ Proofing/ Writing', 'Internal Communications, \tMeetings with Internal BMHC Teammember or Team\t1\tOrganizational Activity\tOrganizational Efficiency\tMeeting - Communications\t\t\t\t\t\tMeetings with Internal BMHC Teammember or Team\t1\tOrganizational Activity\tOrganizational Efficiency\tMeeting- Communications', 'MARCOM Check in meeting', 'Marketing', 'Meeting', 'Meeting, Presentation', 'Newsletter', 'Newsletter Archive', 'Newsletter, Writing, Editing, Proofing', 'No Product', 'No Product - Event Support', 'No Product - Internal Communications', 'No product', 'No product - Board Support', 'No product - organizational efficiency', 'No product - organizational strategy', 'No product - organizational strategy meeting', 'No product- organizational strategy', 'No product- troubleshooting', 'Non product - Board Support', 'Organizational Support', 'Presentation', 'Press Release PDF Folder', 'Social Media', 'Social Media Post', 'Update Center of Excellence for Youth Logo', 'Updates', 'Website Updates/Newsletter Archive', 'Website updates', 'newsletter archive', 'sent logo to Director of Outreach', 'website updates'
-        ]
+    '', 'Administrative Task', 'Announcement', 'Branding', 'Editing/ Proofing/ Writing', 'Internal Communications, \tMeetings with Internal BMHC Teammember or Team\t1\tOrganizational Activity\tOrganizational Efficiency\tMeeting - Communications\t\t\t\t\t\tMeetings with Internal BMHC Teammember or Team\t1\tOrganizational Activity\tOrganizational Efficiency\tMeeting- Communications', 'MARCOM Check in meeting', 'Marketing', 'Meeting', 'Meeting, Presentation', 'Newsletter', 'Newsletter Archive', 'Newsletter, Writing, Editing, Proofing', 'No Product', 'No Product - Event Support', 'No Product - Internal Communications', 'No product', 'No product - Board Support', 'No product - organizational efficiency', 'No product - organizational strategy', 'No product - organizational strategy meeting', 'No product- organizational strategy', 'No product- troubleshooting', 'Non product - Board Support', 'Organizational Support', 'Presentation', 'Press Release PDF Folder', 'Social Media', 'Social Media Post', 'Update Center of Excellence for Youth Logo', 'Updates', 'Website Updates/Newsletter Archive', 'Website updates', 'newsletter archive', 'sent logo to Director of Outreach', 'website updates']
 
 
 df['Product Type'] = (
@@ -731,8 +760,7 @@ product_pie=px.pie(
 ).update_traces(
     rotation=180,
     textposition='auto',
-    # textinfo='none',
-    textinfo='value+percent',
+    texttemplate='%{value}<br>(%{percent:.1%})',
     hovertemplate='<b>%{label} Status</b>: %{value}<extra></extra>',
 )
 
@@ -1048,7 +1076,7 @@ purpose_pie = px.pie(
 ).update_traces(
     rotation=160,
     textposition='auto',
-    textinfo='value+percent',
+    texttemplate='%{value}<br>(%{percent:.1%})',
     hovertemplate='<b>%{label} Status</b>: %{value}<extra></extra>',
 )
 
@@ -1249,7 +1277,7 @@ pf_pie = px.pie(
     textfont=dict(size=19),  # Increase text size in each bar
     textinfo='value+percent',
     insidetextorientation='horizontal',  # Horizontal text orientation
-    texttemplate='%{value}<br>%{percent:.0%}',  # Format percentage as whole numbers
+    texttemplate='%{value}<br>(%{percent:.1%})',
     hovertemplate='<b>%{label}</b>: %{value}<extra></extra>'
 )
 
@@ -1355,8 +1383,7 @@ status_pie = px.pie(
         textposition='inside',
         textinfo='percent+label',
         hoverinfo='label+percent',
-         texttemplate='%{value}<br>%{percent:.0%}',  # Format percentage as whole numbers
-        hole=0.2
+        texttemplate='%{value}<br>(%{percent:.1%})',
     )
 
 # # ========================== MarCom DataFrame Table ========================== #
@@ -1469,14 +1496,14 @@ app.layout = html.Div(
             f'BMHC MarCom Report {current_quarter} 2025', 
             className='title'),
         html.H2(
-            '01/01/2025 - 3/31/2025', 
+            '04/01/2025 - 6/30/2025', 
             className='title2'),
         html.Div(
             className='btn-box', 
             children=[
                 html.A(
                 'Repo',
-                href='https://github.com/CxLos/MC_Q2_2025',
+                href=f'https://github.com/CxLos/MC_{current_quarter}_{report_year}',
                 className='btn'),
             ]),
     ]),    
@@ -1676,35 +1703,34 @@ html.Div(
     ]
 ),
 
-# # ROW 
-html.Div(
-    className='row3',
-    children=[
-        html.Div(
-            className='graph0',
-            children=[
-                dcc.Graph(
-                    figure=product_pie
-                )
-            ]
-        )
-    ]
-),
+# html.Div(
+#     className='row3',
+#     children=[
+#         html.Div(
+#             className='graph0',
+#             children=[
+#                 dcc.Graph(
+#                     figure=product_pie
+#                 )
+#             ]
+#         )
+#     ]
+# ),
 
-# ROW 
-html.Div(
-    className='row3',
-    children=[
-        html.Div(
-            className='graph0',
-            children=[
-                dcc.Graph(
-                    figure=purpose_pie
-                )
-            ]
-        )
-    ]
-),
+# # ROW 
+# html.Div(
+#     className='row3',
+#     children=[
+#         html.Div(
+#             className='graph0',
+#             children=[
+#                 dcc.Graph(
+#                     figure=purpose_pie
+#                 )
+#             ]
+#         )
+#     ]
+# ),
 
 # ROW 
 html.Div(

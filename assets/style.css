@@ -256,7 +256,7 @@
 .high3 {
   font-size: 70px;
   margin: 0px 0px 0px 0px;
-  padding: 45px 15px 45px 15px;
+  padding: 15px 15px 15px 15px;
   display: flex; /* Use flexbox for alignment */
   justify-content: center; /* Horizontal centering */
   align-items: center; /* Vertical centering */
