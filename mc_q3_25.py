@@ -92,7 +92,7 @@ report_date = datetime(2025, 6, 1)
 report_year = datetime(2025, 6, 1).year
 month = report_date.month
 current_quarter = get_custom_quarter(report_date)
-print(f"Reporting Quarter: {current_quarter}")
+# print(f"Reporting Quarter: {current_quarter}")
 
 # Get the first month of the quarter
 first_month = 3 * ((month - 1) // 3) + 1
@@ -103,7 +103,7 @@ first_month_name = calendar.month_name[first_month]
 second_month_name = calendar.month_name[second_month]
 third_month_name = calendar.month_name[third_month]
 
-print(f"First Month: {first_month_name}, Second Month: {second_month_name}, Third Month: {third_month_name}")
+# print(f"First Month: {first_month_name}, Second Month: {second_month_name}, Third Month: {third_month_name}")
 
 # print(df_m.head())
 # print('Total Marketing Events: ', len(df))
@@ -216,20 +216,20 @@ df['Activity duration'] = pd.to_numeric(df['Activity duration'], errors='coerce'
 marcom_hours = df.groupby('Activity duration').size().reset_index(name='Count')
 marcom_hours = df['Activity duration'].sum()/60
 marcom_hours = round(marcom_hours)
-print(f'{current_quarter} MarCom hours', marcom_hours)
+# print(f'{current_quarter} MarCom hours', marcom_hours)
 
 # Calculate total hours for each month
 hours_1 = df[df['Month'] == first_month_name]['Activity duration'].sum()
 hours_1 = round(hours_1) 
-print(f'MarCom hours in {first_month_name}:', hours_1)
+# print(f'MarCom hours in {first_month_name}:', hours_1)
 
 hours_2 = df[df['Month'] == second_month_name]['Activity duration'].sum()
 hours_2 = round(hours_2)
-print(f'MarCom hours in {second_month_name}:', hours_2)
+# print(f'MarCom hours in {second_month_name}:', hours_2)
 
 hours_3 = df[df['Month'] == third_month_name]['Activity duration'].sum()
 hours_3 = round(hours_3)
-print(f'MarCom hours in {third_month_name}:', hours_3)
+# print(f'MarCom hours in {third_month_name}:', hours_3)
 
 # Create df for MarCom Hours
 df_hours = pd.DataFrame({
@@ -344,7 +344,7 @@ travel_time = round(travel_time)
 
 # ------------------------------ MarCom Activity DF ------------------------------- #
 
-print("MarCom Activity Unique Before: \n", df['MarCom Activity'].unique().tolist())
+# print("MarCom Activity Unique Before: \n", df['MarCom Activity'].unique().tolist())
 
 mc_unique =[
     'Organizational Activity', 'General Health Awareness Activity', 'Care Network Related Activity', 'Board Support', 'BMHC Activity (Internal)', 'Community Education Activity (Digital Space Related)', 'Overcoming Mental Hellness logo', 'AmeriCorps Activity ', 'Community Outreach Activity (Physical Events)', 'AmeriCorps Duties', 'Care Network Activity (Services Related)', 'AmeriCorps Activity', 'Americorps Activity', 'AmeriCorps Avtivity'
@@ -487,7 +487,7 @@ activity_pie = px.pie(
 
 # ---------------------------- Product DF ------------------------ #
 
-print("Product Type Unique Before: \n", df['Product Type'].unique().tolist())
+# print("Product Type Unique Before: \n", df['Product Type'].unique().tolist())
 
 data = [
     '', 'Administrative Task', 'Announcement', 'Branding', 'Editing/ Proofing/ Writing', 'Internal Communications, \tMeetings with Internal BMHC Teammember or Team\t1\tOrganizational Activity\tOrganizational Efficiency\tMeeting - Communications\t\t\t\t\t\tMeetings with Internal BMHC Teammember or Team\t1\tOrganizational Activity\tOrganizational Efficiency\tMeeting- Communications', 'MARCOM Check in meeting', 'Marketing', 'Meeting', 'Meeting, Presentation', 'Newsletter', 'Newsletter Archive', 'Newsletter, Writing, Editing, Proofing', 'No Product', 'No Product - Event Support', 'No Product - Internal Communications', 'No product', 'No product - Board Support', 'No product - organizational efficiency', 'No product - organizational strategy', 'No product - organizational strategy meeting', 'No product- organizational strategy', 'No product- troubleshooting', 'Non product - Board Support', 'Organizational Support', 'Presentation', 'Press Release PDF Folder', 'Social Media', 'Social Media Post', 'Update Center of Excellence for Youth Logo', 'Updates', 'Website Updates/Newsletter Archive', 'Website updates', 'newsletter archive', 'sent logo to Director of Outreach', 'website updates']
