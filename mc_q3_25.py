@@ -72,7 +72,7 @@ color_sequence = px.colors.qualitative.Plotly
 
 # Filtered df where 'Date of Activity:' is between 2025-01-01 and 2025-03-31
 df['Date of Activity'] = pd.to_datetime(df['Date of Activity'], errors='coerce')
-# df = df[(df['Date of Activity'].dt.month >= 4) & (df['Date of Activity'].dt.month <= 6)]
+df = df[(df['Date of Activity'].dt.month >= 4) & (df['Date of Activity'].dt.month <= 6)]
 df['Month'] = df['Date of Activity'].dt.month_name()
 
 # Get the reporting quarter:
@@ -233,7 +233,7 @@ hours_3 = round(hours_3)
 
 # Create df for MarCom Hours
 df_hours = pd.DataFrame({
-    'Month': ['January', 'February', 'March'],
+    'Month': ['April', 'May', 'June'],
     'Hours': [hours_1, hours_2, hours_3]
 })
 
@@ -283,12 +283,12 @@ hours_fig = px.bar(
         '<b>Hours</b>: %{y}<extra></extra>'  
     ),
 ).add_annotation(
-    x='October',  # Specify the x-axis value
-    y=df_hours.loc[df_hours['Month'] == 'January', 'Hours'].values[0] + 100,  # Position slightly above the bar
-    text='',  # Annotation text
-    showarrow=False,  # Hide the arrow
-    font=dict(size=30, color='red'),  # Customize font size and color
-    align='center',  # Center-align the text
+    # x='October',  # Specify the x-axis value
+    # y=df_hours.loc[df_hours['Month'] == 'January', 'Hours'].values[0] + 100,  # Position slightly above the bar
+    # text='',  # Annotation text
+    # showarrow=False,  # Hide the arrow
+    # font=dict(size=30, color='red'),  # Customize font size and color
+    # align='center',  # Center-align the text
 )
 
 # Pie Chart MarCom Hours
@@ -381,7 +381,7 @@ df_activity_counts = (
 )
 
 # Sort months in the desired order
-month_order = ['January', 'February', 'March']
+month_order = ['April', 'May', 'June']
 
 df_activity_counts['Month'] = pd.Categorical(
     df_activity_counts['Month'],
@@ -1116,7 +1116,7 @@ df_person_counts = (
 )
 
 # Sort months in the desired order
-month_order = ['January', 'February', 'March']
+month_order = ['April', 'May', 'June']
 df_person_counts['Month'] = pd.Categorical(
     df_person_counts['Month'],
     categories=month_order,
